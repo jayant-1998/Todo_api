@@ -15,9 +15,9 @@ namespace TodoAPI.Services.Implementation
             _repository = serviceProvider.GetRequiredService<ITodoRepositories>();
 
         }
-        public ActionResult<ApiResponseViewModel> CreateTodo(RequestModels todoItem)
+        public async Task<ActionResult<ApiResponseViewModel>> CreateTodo(RequestModels todoItem)
         {
-            return _repository.CreateTodoItem(todoItem);
+            return await _repository.CreateTodoItem(todoItem);
             
         }
 
@@ -38,7 +38,7 @@ namespace TodoAPI.Services.Implementation
 
         }
 
-        public async Task<ResponseTodoItem> GetAllCompleted()
+        public async Task<IEnumerable<ResponseTodoItem>> GetAllCompleted()
         {
             return await _repository.GetAllCompltedDb();
         }
@@ -49,7 +49,7 @@ namespace TodoAPI.Services.Implementation
 
         }
 
-        public async Task<IEnumerable<ResponseTodoItem>> TodoItems()
+        public async Task<IEnumerable<ResponseTodoItem>> FetchAllDataAsync()
         {
             return await _repository.FetchAllDataAsync();
         }

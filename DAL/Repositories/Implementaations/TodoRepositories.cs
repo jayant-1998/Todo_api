@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http.Connections;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoAPI.DAL.DBContexts;
 using TodoAPI.DAL.Entity;
@@ -17,7 +18,7 @@ namespace TodoAPI.DAL.Repositories.Implementaations
             _dbContext = dbContext;
         }
 
-        public ActionResult<ApiResponseViewModel> CreateTodoItem(RequestModels todoItem)
+        public async Task<ActionResult<ApiResponseViewModel>> CreateTodoItem(RequestModels todoItem)
         {
             try
             {
@@ -30,7 +31,7 @@ namespace TodoAPI.DAL.Repositories.Implementaations
                 };
 
                 _dbContext.Add(requestbody);
-                _dbContext.SaveChanges();
+                await _dbContext.SaveChangesAsync();
 
                 var reponse = new ApiResponseViewModel
                 {
@@ -145,12 +146,12 @@ namespace TodoAPI.DAL.Repositories.Implementaations
             return responseTodoItems;
         }
 
-        public async Task<ResponseTodoItem> GetAllCompltedDb()
+        public async Task<IEnumerable<ResponseTodoItem>> GetAllCompltedDb()
         {
-            var body = await _dbContext.TodoItems
-                .Where(t => t.IsCompleted != false && !t.IsDeleted)
-                .ToListAsync();
-            var responseTodoItems = body.Select(todo => new ResponseTodoItem
+            var body = _dbContext.TodoItems
+                .Where(t => t.IsCompleted != false && !t.IsDeleted);
+
+            var responseTodoItems = await body.Select(todo => new ResponseTodoItem
             {
                 ID = todo.ID,
                 Name = todo.Name,
@@ -161,9 +162,9 @@ namespace TodoAPI.DAL.Repositories.Implementaations
                 CreatedAt = todo.CreatedAt,
                 IsDeleted = todo.IsDeleted,
                 CompletedAt = todo.CompletedAt,
-            });
+            }).ToListAsync();
 
-            return (ResponseTodoItem)responseTodoItems;
+            return responseTodoItems;
         }
 
         public async Task<ResponseTodoItem> GetCompletedByIdDb(int id)
@@ -171,8 +172,18 @@ namespace TodoAPI.DAL.Repositories.Implementaations
             var body = await _dbContext.TodoItems
                 .Where (todo => todo.ID == id && !todo.IsCompleted && !todo.IsDeleted)
                 .SingleOrDefaultAsync();
+            if (body == null)
+            {
+                var responseerr = new ResponseTodoItem();
+                
+                return responseerr;
+            }
+            body.CompletedAt = DateTime.Now;
+            body.IsCompleted = true;
 
-            var response = new ResponseTodoItem
+            await _dbContext.SaveChangesAsync();
+
+            var savechanges = new ResponseTodoItem
             {
                 ID = body.ID,
                 Name = body.Name,
@@ -186,7 +197,9 @@ namespace TodoAPI.DAL.Repositories.Implementaations
 
             };
 
-            return response;
+
+            return savechanges;
+
 
         }
 

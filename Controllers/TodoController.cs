@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using TodoAPI.DAL.DBContexts;
-using TodoAPI.DAL.Entity;
 using TodoAPI.Models.RequestViewModels;
 using TodoAPI.Models.ResponseViewModels;
+using TodoAPI.Services.Interface;
 
 namespace TodoAPI.Controllers
 {
@@ -11,38 +10,30 @@ namespace TodoAPI.Controllers
     [Route("[controller]")]
     public class TodoController : ControllerBase
     {
-        private readonly ApplicationDBContext _context;
+        private readonly ITodoServices _services;
 
-        public TodoController(ApplicationDBContext context)
+        public TodoController(ITodoServices services)
         {
-            _context = context;
+            _services = services;
         }
 
 
 
         // GET: show all todos
         [HttpGet]
-        public ActionResult<IEnumerable<ResponseTodoItem>> GetTodoItems()
+        public async Task<ActionResult> GetTodoItems()
         {
             try
             {
-                var body = _context.TodoItems
-                            .Where(todo => todo.IsCompleted == false && todo.IsDeleted == false);
-
-                var responsetodoitem = body.Select(todo => new ResponseTodoItem
+                var result = await _services.FetchAllDataAsync();
+                var response = new ApiResponseViewModel
                 {
-                    ID = todo.ID,
-                    Name = todo.Name,
-                    Description = todo.Description,
-                    IsCompleted = todo.IsCompleted,
-                    DeletedAt = todo.DeletedAt,
-                    UpdatedAt = todo.UpdatedAt,
-                    CreatedAt = todo.CreatedAt,
-                    IsDeleted = todo.IsDeleted,
-                    CompletedAt = todo.CompletedAt,
-                }).ToList();
-
-                return responsetodoitem;
+                    Timestamp = DateTime.Now,
+                    Code = 200,
+                    Message = "success",
+                    Body = result
+                };
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -50,10 +41,10 @@ namespace TodoAPI.Controllers
                 {
                     Timestamp = DateTime.Now,
                     Code = 500,
-                    Message = "Have A Exception",
-                    Body = ex.Message
+                    Message = ex.Message,
+                    Body = null
                 };
-                return BadRequest(response);
+                return Ok(response);
             }
 
 
@@ -63,73 +54,47 @@ namespace TodoAPI.Controllers
 
         // GET: show todo by id
         [HttpGet("{id}")]
-        public ActionResult<ResponseTodoItem> GetTodoItem(int id)
+        public async Task<ActionResult> GetTodoItem(int id)
         {
             try
             {
-                var todoItem = _context.TodoItems
-                    .Where(todo => todo.ID == id && todo.IsCompleted == false && todo.IsDeleted == false)
-                    .FirstOrDefault();
-
-                if (todoItem == null)
+                var result = await _services.FetchAllDataByIdAsync(id);
+                var response = new ApiResponseViewModel
                 {
-                    return NotFound();
-                }
-
-                var responsetodoitem = new ResponseTodoItem
-                {
-                    ID = todoItem.ID,
-                    Name = todoItem.Name,
-                    Description = todoItem.Description,
-                    IsCompleted = todoItem.IsCompleted,
-                    DeletedAt = todoItem.DeletedAt,
-                    UpdatedAt = todoItem.UpdatedAt,
-                    CreatedAt = todoItem.CreatedAt,
-                    IsDeleted = todoItem.IsDeleted,
-                    CompletedAt = todoItem.CompletedAt,
-
+                    Timestamp = DateTime.Now,
+                    Code = 200,
+                    Message = "success",
+                    Body = result
                 };
-
-                return responsetodoitem;
+                return Ok(response);
             }
             catch (Exception ex)
             {
-                var respose = new ApiResponseViewModel
+                var response = new ApiResponseViewModel
                 {
                     Timestamp = DateTime.Now,
                     Code = 500,
-                    Message = "Have A Exception",
-                    Body = ex.Message
+                    Message = ex.Message,
+                    Body = null
                 };
-
-                return BadRequest(respose);
+                return Ok(response);
             }
         }
 
         // POST: insert data
         [HttpPost]
-        public ActionResult<ApiResponseViewModel> CreateTodoItem(RequestModels todoItem)
+        public async Task<ActionResult> CreateTodoItem(RequestModels todoItem)
         {
             try
             {
-                TodoItem requestbody = new TodoItem
-                {
-                    ID = todoItem.Id,
-                    Name = todoItem.Name,
-                    Description = todoItem.Description,
-                    CreatedAt = DateTime.Now,
-                };
-
-
-                _context.Add(requestbody);
-                _context.SaveChanges();
+                var result = await _services.CreateTodo(todoItem);
 
                 var response = new ApiResponseViewModel
                 {
                     Timestamp = DateTime.Now,
                     Code = 200,
                     Message = "Success",
-                    Body = "Request processed successfully."
+                    Body = result
                 };
 
 
@@ -137,18 +102,17 @@ namespace TodoAPI.Controllers
             }
             catch (DbUpdateException ex)
             {
-                // Log the exception or inspect it for more information
                 var innerExceptionMessage = ex.InnerException?.Message ?? "No inner exception message available";
 
                 var response = new ApiResponseViewModel
                 {
                     Timestamp = DateTime.Now,
                     Code = 500,
-                    Message = "Error while saving changes",
-                    Body = innerExceptionMessage
+                    Message = ex.Message,
+                    Body = null
                 };
 
-                return BadRequest(response);
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -156,129 +120,93 @@ namespace TodoAPI.Controllers
                 {
                     Timestamp = DateTime.Now,
                     Code = 500,
-                    Message = "Have An Exception",
-                    Body = $"{ex.Message}"
+                    Message = ex.Message,
+                    Body = null
                 };
 
-                return BadRequest(response);
+                return Ok(response);
             }
         }
 
         // PUT: update todo by id 
         [HttpPut("{id}")]
-        public IActionResult UpdateTodoItem(int id, RequsetUpdateModels todoItem)
+        public async Task<IActionResult> UpdateTodoItem(int id, RequsetUpdateModels todoItem)
         {
             try
             {
-                var body = _context.TodoItems
-                            .Where(todo => todo.ID == id && todo.IsCompleted == false && todo.IsDeleted == false)
-                            .SingleOrDefault();
-
-                if (body == null)
-                {
-                    return NotFound();
-                }
-
-                body.Name = todoItem.Name;
-                body.Description = todoItem.Description;
-                body.UpdatedAt = DateTime.Now;
-
-                _context.SaveChanges();
+                var result = await _services.Updatetodo(id, todoItem);  
 
                 var response = new ApiResponseViewModel
                 {
                     Timestamp = DateTime.Now,
                     Code = 200,
                     Message = "Success",
-                    Body = "Request processed successfully."
+                    Body = result
                 };
 
                 return Ok(response);
             }
             catch (Exception ex)
             {
-                var respose = new ApiResponseViewModel
+                var response = new ApiResponseViewModel
                 {
                     Timestamp = DateTime.Now,
                     Code = 500,
-                    Message = "Have A Exception",
-                    Body = ex.Message
+                    Message = ex.Message,
+                    Body = null
                 };
 
-                return BadRequest(respose);
+                return Ok(response);
             }
         }
 
         // DELETE: delete by id
         [HttpDelete("{id}")]
-        public IActionResult DeleteTodoItem(int id)
+        public async Task<IActionResult> DeleteTodoItem(int id)
         {
             try
             {
-                var todoItem = _context.TodoItems
-                                .Where(todo => todo.ID == id && todo.DeletedAt == null)
-                                .FirstOrDefault();
+                var result = await _services.DeleteTodo(id);
 
-                if (todoItem == null)
-                {
-                    return NotFound();
-                }
-
-                todoItem.DeletedAt = DateTime.Now;
-                todoItem.IsDeleted = true;
-                _context.SaveChanges();
                 var response = new ApiResponseViewModel
                 {
                     Timestamp = DateTime.Now,
                     Code = 200,
                     Message = "Success",
-                    Body = "Request processed successfully."
+                    Body = result
                 };
-
 
                 return Ok(response);
             }
             catch (Exception ex)
             {
-                var respose = new ApiResponseViewModel
+                var response = new ApiResponseViewModel
                 {
                     Timestamp = DateTime.Now,
                     Code = 500,
-                    Message = "Have A Exception",
-                    Body = ex.Message
+                    Message = ex.Message,
+                    Body = null
                 };
 
-                return BadRequest(respose);
+                return Ok(response);
             }
         }
 
         // PUT: completed by id
         [HttpPut("{id}/complete")]
-        public IActionResult CompleteTodoItem(int id)
+        public async Task<IActionResult> CompleteTodoItem(int id)
         {
             try
             {
-                var todoItem = _context.TodoItems
-                                .Where(todo => todo.ID == id)
-                                .FirstOrDefault();
-
-                if (todoItem == null && todoItem.DeletedAt == null)
-                {
-                    return NotFound();
-                }
-
-                todoItem.CompletedAt = DateTime.Now;
-                todoItem.IsCompleted = true;
-                _context.SaveChanges();
+                var result = await _services.GetCompletedById(id);
 
                 var response = new ApiResponseViewModel
                 {
                     Timestamp = DateTime.Now,
                     Code = 200,
                     Message = "Success",
-                    Body = "Request processed successfully."
+                    Body = result
                 };
-
 
                 return Ok(response);
             }
@@ -288,37 +216,30 @@ namespace TodoAPI.Controllers
                 {
                     Timestamp = DateTime.Now,
                     Code = 500,
-                    Message = "have a exception",
-                    Body = ex.Message
+                    Message = ex.Message,
+                    Body = null
                 };
 
-
-                return BadRequest(response);
+                return Ok(response);
             }
         }
 
         [HttpGet("completed")]
-        public ActionResult<IEnumerable<ResponseTodoItem>> GetCompletedTodoItems()
+        public async Task<ActionResult> GetCompletedTodoItems()
         {
             try
             {
-                var body = _context.TodoItems
-                            .Where(todo => todo.IsCompleted != false && todo.IsDeleted == false);
+                var result = await _services.GetAllCompleted();
 
-                var responsetodoitem = body.Select(todo => new ResponseTodoItem
+                var response = new ApiResponseViewModel
                 {
-                    ID = todo.ID,
-                    Name = todo.Name,
-                    Description = todo.Description,
-                    IsCompleted = todo.IsCompleted,
-                    DeletedAt = todo.DeletedAt,
-                    UpdatedAt = todo.UpdatedAt,
-                    CreatedAt = todo.CreatedAt,
-                    IsDeleted = todo.IsDeleted,
-                    CompletedAt = todo.CompletedAt,
-                }).ToList();
+                    Timestamp = DateTime.Now,
+                    Code = 200,
+                    Message = "Success",
+                    Body = result
+                };
 
-                return responsetodoitem;
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -326,10 +247,11 @@ namespace TodoAPI.Controllers
                 {
                     Timestamp = DateTime.Now,
                     Code = 500,
-                    Message = "Have A Exception",
-                    Body = ex.Message
+                    Message = ex.Message,
+                    Body = null
                 };
-                return BadRequest(response);
+
+                return Ok(response);
             }
         }
     }

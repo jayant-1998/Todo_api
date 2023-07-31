@@ -7,12 +7,12 @@ namespace TodoAPI.Services.Interface
     public interface ITodoServices
     {
 
-        public ActionResult<ApiResponseViewModel> CreateTodo(RequestModels todoItem);
-        public Task<IEnumerable<ResponseTodoItem>> TodoItems();
+        public Task<ActionResult<ApiResponseViewModel>> CreateTodo(RequestModels todoItem);
+        public Task<IEnumerable<ResponseTodoItem>> FetchAllDataAsync();
         public Task<ResponseTodoItem> FetchAllDataByIdAsync(int id);
         public Task<ApiResponseViewModel> Updatetodo(int id, RequsetUpdateModels todoItem);
         public Task<ApiResponseViewModel> DeleteTodo(int id);
-        public Task<ResponseTodoItem> GetAllCompleted();
+        public Task<IEnumerable<ResponseTodoItem>> GetAllCompleted();
         public Task<ResponseTodoItem> GetCompletedById(int id);
     }
 }
