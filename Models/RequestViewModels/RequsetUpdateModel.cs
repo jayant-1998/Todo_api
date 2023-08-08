@@ -1,13 +1,8 @@
 ﻿namespace TodoAPI.Models.RequestViewModels
 {
-    public class RequestModels
+    public class RequsetUpdateModel
     {
-        public int Id { get; set; } 
         public string Name { get; set; }
         public string Description { get; set; }
     }
-
-    
-    
-
 }

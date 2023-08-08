@@ -1,31 +1,31 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using TodoAPI.Models.RequestViewModels;
 using TodoAPI.Models.ResponseViewModels;
 using TodoAPI.Services.Interface;
 
 namespace TodoAPI.Controllers
 {
-    [ApiController]
+    
     [Route("[controller]")]
+    [ApiController]
     public class TodoController : ControllerBase
     {
-        private readonly ITodoServices _services;
+        private readonly ITodoService _service;
 
-        public TodoController(ITodoServices services)
+        public TodoController(ITodoService service)
         {
-            _services = services;
+            _service = service;
         }
 
-
-
         // GET: show all todos
+        [Route("GetAllTasks")]
         [HttpGet]
         public async Task<ActionResult> GetTodoItems()
         {
             try
             {
-                var result = await _services.FetchAllDataAsync();
+                IEnumerable<ResponseTodoItem> result = await _service.GetAllTasksAsync();
+               
                 var response = new ApiResponseViewModel
                 {
                     Timestamp = DateTime.Now,
@@ -46,19 +46,16 @@ namespace TodoAPI.Controllers
                 };
                 return Ok(response);
             }
-
-
-
-
         }
 
         // GET: show todo by id
-        [HttpGet("{id}")]
+        [HttpGet("{id}/GetTaskById")]
         public async Task<ActionResult> GetTodoItem(int id)
         {
             try
             {
-                var result = await _services.FetchAllDataByIdAsync(id);
+                ResponseTodoItem result = await _service.GetTaskByIdAsync(id);
+                
                 var response = new ApiResponseViewModel
                 {
                     Timestamp = DateTime.Now,
@@ -82,12 +79,13 @@ namespace TodoAPI.Controllers
         }
 
         // POST: insert data
+        [Route("InsertTask")]
         [HttpPost]
-        public async Task<ActionResult> CreateTodoItem(RequestModels todoItem)
+        public async Task<ActionResult> CreateTodoItem(RequestModel todoItem)
         {
             try
             {
-                var result = await _services.CreateTodo(todoItem);
+                var result = await _service.CreateTaskAsync(todoItem);
 
                 var response = new ApiResponseViewModel
                 {
@@ -97,20 +95,6 @@ namespace TodoAPI.Controllers
                     Body = result
                 };
 
-
-                return Ok(response);
-            }
-            catch (DbUpdateException ex)
-            {
-                var innerExceptionMessage = ex.InnerException?.Message ?? "No inner exception message available";
-
-                var response = new ApiResponseViewModel
-                {
-                    Timestamp = DateTime.Now,
-                    Code = 500,
-                    Message = ex.Message,
-                    Body = null
-                };
 
                 return Ok(response);
             }
@@ -129,18 +113,23 @@ namespace TodoAPI.Controllers
         }
 
         // PUT: update todo by id 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateTodoItem(int id, RequsetUpdateModels todoItem)
+        [HttpPut("{id}/UpdateTask")]
+        public async Task<IActionResult> UpdateTodoItem(int id, RequsetUpdateModel todoItem)
         {
             try
             {
-                var result = await _services.Updatetodo(id, todoItem);  
+                var result = await _service.UpdateTaskAsync(id, todoItem); 
+                
+                if (result == null)
+                {
+                    throw new Exception("id is not found in database or it already deleted");
+                }
 
                 var response = new ApiResponseViewModel
                 {
                     Timestamp = DateTime.Now,
                     Code = 200,
-                    Message = "Success",
+                    Message = "success",
                     Body = result
                 };
 
@@ -161,18 +150,18 @@ namespace TodoAPI.Controllers
         }
 
         // DELETE: delete by id
+        
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTodoItem(int id)
         {
             try
             {
-                var result = await _services.DeleteTodo(id);
-
+                var result = await _service.DeleteTaskAsync(id);
                 var response = new ApiResponseViewModel
                 {
                     Timestamp = DateTime.Now,
                     Code = 200,
-                    Message = "Success",
+                    Message = "success",
                     Body = result
                 };
 
@@ -193,18 +182,23 @@ namespace TodoAPI.Controllers
         }
 
         // PUT: completed by id
-        [HttpPut("{id}/complete")]
+        [HttpPut("{id}/CompleteTaskById")]
         public async Task<IActionResult> CompleteTodoItem(int id)
         {
             try
             {
-                var result = await _services.GetCompletedById(id);
+                var result = await _service.CompleteTaskByIdAsync(id);
+
+                if (result == null)
+                {
+                    throw new Exception("id is not found in database");
+                }
 
                 var response = new ApiResponseViewModel
                 {
                     Timestamp = DateTime.Now,
                     Code = 200,
-                    Message = "Success",
+                    Message = "success",
                     Body = result
                 };
 
@@ -224,18 +218,18 @@ namespace TodoAPI.Controllers
             }
         }
 
-        [HttpGet("completed")]
+        [HttpGet("GetAllCompletedTask")]
         public async Task<ActionResult> GetCompletedTodoItems()
         {
             try
             {
-                var result = await _services.GetAllCompleted();
+                var result = await _service.GetAllCompleteTasksAsync();
 
                 var response = new ApiResponseViewModel
                 {
                     Timestamp = DateTime.Now,
                     Code = 200,
-                    Message = "Success",
+                    Message = "success",
                     Body = result
                 };
 
