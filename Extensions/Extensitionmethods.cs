@@ -12,7 +12,7 @@ namespace TodoAPI.Extensions
             {
                 //var entityProperty = typeof(T1).GetProperty(property.Name);
                 var viewModelProperty = typeof(T2).GetProperty(property.Name);
-                if (viewModelProperty.Name == property.Name && viewModelProperty.PropertyType == property.PropertyType)
+                if (viewModelProperty != null && viewModelProperty.PropertyType == property.PropertyType)
                 {
                     var value = property.GetValue(entity);
                     viewModelProperty.SetValue(responseItem, value);

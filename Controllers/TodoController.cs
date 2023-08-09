@@ -6,7 +6,7 @@ using TodoAPI.Services.Interface;
 namespace TodoAPI.Controllers
 {
     
-    [Route("[controller]")]
+    [Route("todo")]
     [ApiController]
     public class TodoController : ControllerBase
     {
@@ -18,13 +18,13 @@ namespace TodoAPI.Controllers
         }
 
         // GET: show all todos
-        [Route("GetAllTasks")]
+        [Route("get-task-items")]
         [HttpGet]
-        public async Task<ActionResult> GetTodoItems()
+        public async Task<ActionResult> GetTaskItems()
         {
             try
             {
-                IEnumerable<ResponseTodoItem> result = await _service.GetAllTasksAsync();
+                IEnumerable<TaskResponseViewModel> result = await _service.GetAllTasksAsync();
                
                 var response = new ApiResponseViewModel
                 {
@@ -49,12 +49,12 @@ namespace TodoAPI.Controllers
         }
 
         // GET: show todo by id
-        [HttpGet("{id}/GetTaskById")]
-        public async Task<ActionResult> GetTodoItem(int id)
+        [HttpGet("get-task-item/{id}")]
+        public async Task<ActionResult> GetTaskItemsById(int id)
         {
             try
             {
-                ResponseTodoItem result = await _service.GetTaskByIdAsync(id);
+                TaskResponseViewModel result = await _service.GetTaskByIdAsync(id);
                 
                 var response = new ApiResponseViewModel
                 {
@@ -79,13 +79,13 @@ namespace TodoAPI.Controllers
         }
 
         // POST: insert data
-        [Route("InsertTask")]
+        [Route("insert-task")]
         [HttpPost]
-        public async Task<ActionResult> CreateTodoItem(RequestModel todoItem)
+        public async Task<ActionResult> InsertTask(InsertRequestViewModel todoItem)
         {
             try
             {
-                var result = await _service.CreateTaskAsync(todoItem);
+                var result = await _service.InsertTaskAsync(todoItem);
 
                 var response = new ApiResponseViewModel
                 {
@@ -113,8 +113,8 @@ namespace TodoAPI.Controllers
         }
 
         // PUT: update todo by id 
-        [HttpPut("{id}/UpdateTask")]
-        public async Task<IActionResult> UpdateTodoItem(int id, RequsetUpdateModel todoItem)
+        [HttpPut("update-task/{id}")]
+        public async Task<IActionResult> UpdateTaskItem(int id, UpdateRequestViewModel todoItem)
         {
             try
             {
@@ -152,7 +152,7 @@ namespace TodoAPI.Controllers
         // DELETE: delete by id
         
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTodoItem(int id)
+        public async Task<IActionResult> DeleteTaskItem(int id)
         {
             try
             {
@@ -182,12 +182,12 @@ namespace TodoAPI.Controllers
         }
 
         // PUT: completed by id
-        [HttpPut("{id}/CompleteTaskById")]
-        public async Task<IActionResult> CompleteTodoItem(int id)
+        [HttpPut("completed-task/{id}")]
+        public async Task<IActionResult> GetCompletedTaskItemById(int id)
         {
             try
             {
-                var result = await _service.CompleteTaskByIdAsync(id);
+                var result = await _service.CompletedTaskAsync(id);
 
                 if (result == null)
                 {
@@ -218,8 +218,8 @@ namespace TodoAPI.Controllers
             }
         }
 
-        [HttpGet("GetAllCompletedTask")]
-        public async Task<ActionResult> GetCompletedTodoItems()
+        [HttpGet("completed-task")]
+        public async Task<ActionResult> GetCompletedTaskItems()
         {
             try
             {
