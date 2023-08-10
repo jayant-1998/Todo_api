@@ -16,17 +16,16 @@ namespace TodoAPI.Controllers
         }
 
         // GET: show all todo
-        [Route("get-task-items")]
+        [Route("get-all-todo")]
         [HttpGet]
-        public async Task<IActionResult> GetTaskItems()
+        public async Task<IActionResult> GetTodoItems()
         {
             try
             {
-                IEnumerable<TaskResponseViewModel> result = await _service.GetAllTasksAsync();
+                IEnumerable<TodoResponseViewModel> result = await _service.GetAllTodoAsync();
                
                 var response = new ApiResponseViewModel
                 {
-                    Timestamp = DateTime.Now,
                     Code = 200,
                     Message = "success",
                     Body = result
@@ -37,7 +36,6 @@ namespace TodoAPI.Controllers
             {
                 var response = new ApiResponseViewModel
                 {
-                    Timestamp = DateTime.Now,
                     Code = 500,
                     Message = ex.Message,
                     Body = null
@@ -47,16 +45,15 @@ namespace TodoAPI.Controllers
         }
 
         // GET: show todo by id
-        [HttpGet("get-task-item/{id}")]
-        public async Task<ActionResult> GetTaskItemsById(int id)
+        [HttpGet("get-todo/{id}")]
+        public async Task<ActionResult> GetTodoById(int id)
         {
             try
             {
-                TaskResponseViewModel result = await _service.GetTaskByIdAsync(id);
+                TodoResponseViewModel result = await _service.GetTodoByIdAsync(id);
                 
                 var response = new ApiResponseViewModel
                 {
-                    Timestamp = DateTime.Now,
                     Code = 200,
                     Message = "success",
                     Body = result
@@ -67,7 +64,6 @@ namespace TodoAPI.Controllers
             {
                 var response = new ApiResponseViewModel
                 {
-                    Timestamp = DateTime.Now,
                     Code = 500,
                     Message = ex.Message,
                     Body = null
@@ -77,17 +73,16 @@ namespace TodoAPI.Controllers
         }
 
         // POST: insert data
-        [Route("insert-task")]
+        [Route("insert-todo")]
         [HttpPost]
-        public async Task<ActionResult> InsertTask(InsertRequestViewModel todoItem)
+        public async Task<ActionResult> InsertTodo(InsertRequestViewModel todoItem)
         {
             try
             {
-                var result = await _service.InsertTaskAsync(todoItem);
+                var result = await _service.InsertTodoAsync(todoItem);
 
                 var response = new ApiResponseViewModel
                 {
-                    Timestamp = DateTime.Now,
                     Code = 200,
                     Message = "Success",
                     Body = result
@@ -100,7 +95,6 @@ namespace TodoAPI.Controllers
             {
                 var response = new ApiResponseViewModel
                 {
-                    Timestamp = DateTime.Now,
                     Code = 500,
                     Message = ex.Message,
                     Body = null
@@ -111,15 +105,14 @@ namespace TodoAPI.Controllers
         }
 
         // PUT: update todo by id 
-        [HttpPut("update-task/{id}")]
-        public async Task<IActionResult> UpdateTaskItem(int id, UpdateRequestViewModel todoItem)
+        [HttpPut("update-todo/{id}")]
+        public async Task<IActionResult> UpdateTodo(int id, UpdateRequestViewModel todoItem)
         {
             try
             {
-                TaskResponseViewModel result = await _service.UpdateTaskAsync(id, todoItem); 
+                TodoResponseViewModel result = await _service.UpdateTodoAsync(id, todoItem); 
                 var response = new ApiResponseViewModel
                 {
-                    Timestamp = DateTime.Now,
                     Code = 200,
                     Message = "success",
                     Body = result
@@ -131,7 +124,6 @@ namespace TodoAPI.Controllers
             {
                 var response = new ApiResponseViewModel
                 {
-                    Timestamp = DateTime.Now,
                     Code = 500,
                     Message = ex.Message,
                     Body = null
@@ -144,14 +136,13 @@ namespace TodoAPI.Controllers
         // DELETE: delete by id
         
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTaskItem(int id)
+        public async Task<IActionResult> DeleteTodo(int id)
         {
             try
             {
-                var result = await _service.DeleteTaskAsync(id);
+                var result = await _service.DeleteTodoAsync(id);
                 var response = new ApiResponseViewModel
                 {
-                    Timestamp = DateTime.Now,
                     Code = 200,
                     Message = "success",
                     Body = result
@@ -163,7 +154,6 @@ namespace TodoAPI.Controllers
             {
                 var response = new ApiResponseViewModel
                 {
-                    Timestamp = DateTime.Now,
                     Code = 500,
                     Message = ex.Message,
                     Body = null
@@ -174,15 +164,14 @@ namespace TodoAPI.Controllers
         }
 
         // PUT: completed by id
-        [HttpPut("completed-task/{id}")]
-        public async Task<IActionResult> GetCompletedTaskItemById(int id)
+        [HttpPut("complete-todo/{id}")]
+        public async Task<IActionResult> GetCompletedTodoById(int id)
         {
             try
             {
-                var result = await _service.CompletedTaskAsync(id);
+                var result = await _service.CompleteTodoByIdAsync(id);
                 var response = new ApiResponseViewModel
                 {
-                    Timestamp = DateTime.Now,
                     Code = 200,
                     Message = "success",
                     Body = result
@@ -194,7 +183,6 @@ namespace TodoAPI.Controllers
             {
                 var response = new ApiResponseViewModel
                 {
-                    Timestamp = DateTime.Now,
                     Code = 500,
                     Message = ex.Message,
                     Body = null
@@ -204,16 +192,15 @@ namespace TodoAPI.Controllers
             }
         }
 
-        [HttpGet("completed-task")]
-        public async Task<ActionResult> GetCompletedTaskItems()
+        [HttpGet("get-completed-todo")]
+        public async Task<ActionResult> GetAllCompletedTodo()
         {
             try
             {
-                var result = await _service.GetAllCompleteTasksAsync();
+                var result = await _service.GetAllCompletedTodoAsync();
 
                 var response = new ApiResponseViewModel
                 {
-                    Timestamp = DateTime.Now,
                     Code = 200,
                     Message = "success",
                     Body = result
@@ -225,7 +212,6 @@ namespace TodoAPI.Controllers
             {
                 var response = new ApiResponseViewModel
                 {
-                    Timestamp = DateTime.Now,
                     Code = 500,
                     Message = ex.Message,
                     Body = null

@@ -13,7 +13,7 @@ namespace TodoAPI.DAL.Entity
         public bool IsCompleted { get; set; }
         public bool IsDeleted { get; set; }
         public DateTime? CompletedAt { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime? CreatedAt { get; set; } = DateTime.Now;
         public DateTime? UpdatedAt { get; set; }
         public DateTime? DeletedAt { get; set; }
     }

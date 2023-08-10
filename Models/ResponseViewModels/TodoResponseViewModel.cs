@@ -1,6 +1,6 @@
 ﻿namespace TodoAPI.Models.ResponseViewModels
 {
-    public class TaskResponseViewModel
+    public class TodoResponseViewModel
     {
         public int ID { get; set; }
         public string Name { get; set; }

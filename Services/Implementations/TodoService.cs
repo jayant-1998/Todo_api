@@ -14,38 +14,65 @@ namespace TodoAPI.Services.Implementation
         {
             _repository = serviceProvider.GetRequiredService<ITodoRepository>();
         }
-        public async Task<TodoItem> InsertTaskAsync(InsertRequestViewModel todoItem)
+        public async Task<TodoItem> InsertTodoAsync(InsertRequestViewModel todoItem)
         {
-            return await _repository.InsertTaskAsync(todoItem);
+            return await _repository.InsertTodoAsync(todoItem);
         }
 
-        public async Task<string> DeleteTaskAsync(int id)
+        public async Task<TodoItem> DeleteTodoAsync(int id)
         {
-            return await _repository.DeleteTaskAsync(id);
+            var response = await _repository.DeleteTodoAsync(id);
+            if (response == null)
+            {
+                throw new Exception("id does not exists!!");
+            }
+            return response;
         }
 
-        public async Task<TaskResponseViewModel> GetTaskByIdAsync(int id)
+        public async Task<TodoResponseViewModel> GetTodoByIdAsync(int id)
         {
-            return await _repository.GetTaskByIdAsync(id);
+            var response = await _repository.GetTodoByIdAsync(id);
+            if (response == null)
+            {
+                throw new Exception("id does not exists!!");
+            }
+            return response;
         }
-        public async Task<IEnumerable<TaskResponseViewModel>> GetAllCompleteTasksAsync()
+        public async Task<IEnumerable<TodoResponseViewModel>> GetAllCompletedTodoAsync()
         {
-            return await _repository.GetAllCompleteTasksAsync();
-        }
-
-        public async Task<TaskResponseViewModel> CompletedTaskAsync(int id)
-        {
-            return await _repository.CompleteTaskAsync(id);
-        }
-
-        public async Task<IEnumerable<TaskResponseViewModel>> GetAllTasksAsync()
-        {
-            return await _repository.GetAllTasksAsync();
+            return await _repository.GetAllCompletedTodoAsync();
         }
 
-        public async Task<TaskResponseViewModel> UpdateTaskAsync(int id, UpdateRequestViewModel todoItem)
+        public async Task<TodoResponseViewModel> CompleteTodoByIdAsync(int id)
         {
-            return await _repository.UpdateTaskAsync(id, todoItem);
+            var response = await _repository.CompleteTodoByIdAsync(id);
+            if (response == null)
+            {
+                throw new Exception("id does not exists!!");
+            }
+            
+            return response;
+        }
+
+        public async Task<IEnumerable<TodoResponseViewModel>> GetAllTodoAsync()
+        {
+            var response = await _repository.GetAllTodoAsync();
+            if (response == null)
+            {
+                throw new Exception("no todo exists!!"); 
+            }
+            return response;
+        }
+
+        public async Task<TodoResponseViewModel> UpdateTodoAsync(int id, UpdateRequestViewModel todoItem)
+        {
+            var response = await _repository.UpdateTodoAsync(id, todoItem);
+
+            if (response == null)
+            {
+                throw new Exception("id maybe does not exists or it already completed!!");
+            }
+            return response;
         }
     }
 }

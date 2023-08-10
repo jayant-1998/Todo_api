@@ -6,12 +6,12 @@ namespace TodoAPI.Services.Interface
 {
     public interface ITodoService
     {
-        public Task<TodoItem> InsertTaskAsync(InsertRequestViewModel todoItem);
-        public Task<IEnumerable<TaskResponseViewModel>> GetAllTasksAsync();
-        public Task<TaskResponseViewModel> GetTaskByIdAsync(int id);
-        public Task<TaskResponseViewModel> UpdateTaskAsync(int id, UpdateRequestViewModel todoItem);
-        public Task<string> DeleteTaskAsync(int id);
-        public Task<IEnumerable<TaskResponseViewModel>> GetAllCompleteTasksAsync();
-        public Task<TaskResponseViewModel> CompletedTaskAsync(int id);
+        public Task<TodoItem> InsertTodoAsync(InsertRequestViewModel todoItem);
+        public Task<IEnumerable<TodoResponseViewModel>> GetAllTodoAsync();
+        public Task<TodoResponseViewModel> GetTodoByIdAsync(int id);
+        public Task<TodoResponseViewModel> UpdateTodoAsync(int id, UpdateRequestViewModel todoItem);
+        public Task<TodoItem> DeleteTodoAsync(int id);
+        public Task<IEnumerable<TodoResponseViewModel>> GetAllCompletedTodoAsync();
+        public Task<TodoResponseViewModel> CompleteTodoByIdAsync(int id);
     }
 }

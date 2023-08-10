@@ -17,7 +17,7 @@ namespace TodoAPI.DAL.Repositories.Implementations
             _dbContext = dbContext;
         }
 
-        public async Task<TodoItem> InsertTaskAsync(InsertRequestViewModel todoItem)
+        public async Task<TodoItem> InsertTodoAsync(InsertRequestViewModel todoItem)
         {
             var todoItemEntity = todoItem.ToViewModel<InsertRequestViewModel, TodoItem>();
 
@@ -27,64 +27,64 @@ namespace TodoAPI.DAL.Repositories.Implementations
             return todoItemEntity;
         }
 
-        public async Task<string> DeleteTaskAsync(int id)
-        {
-            var todoItem = await _dbContext.TodoItems
-                .Where(todo => todo.ID == id && !todo.IsDeleted)
-                .FirstOrDefaultAsync();
-
-            if (todoItem == null)
-            {
-                return "id:"+id + " Not Found in the Database";
-            }
-            todoItem.IsDeleted = true;
-            todoItem.DeletedAt = DateTime.Now;
-            await _dbContext.SaveChangesAsync();
-            return "id:" + id + " is Successfully Deleted";
-        }
-    
-        public async Task<IEnumerable<TaskResponseViewModel?>> GetAllTasksAsync()
-        {
-            IEnumerable<TodoItem> todoItems = await _dbContext.TodoItems
-                            .Where(todo => !todo.IsCompleted && !todo.IsDeleted)
-                            .ToListAsync();
-
-            if (todoItems == null)
-            {
-                return null;
-            }
-
-            List<TaskResponseViewModel> respond = new List<TaskResponseViewModel>();
-
-            foreach (var item in todoItems)
-            {
-                var response = item.ToViewModel<TodoItem, TaskResponseViewModel>();
-                respond.Add(response);
-            }
-
-            return respond;
-        }
-
-        public async Task<TaskResponseViewModel?> GetTaskByIdAsync(int id)
+        public async Task<TodoItem> DeleteTodoAsync(int id)
         {
             TodoItem todoItem = await _dbContext.TodoItems
-                            .Where(todo => todo.ID == id && !todo.IsCompleted && !todo.IsDeleted)
+                .Where(todo => todo.ID == id)
+                .FirstOrDefaultAsync();
+
+            if (todoItem != null)
+            {
+                todoItem.IsDeleted = true;
+                todoItem.DeletedAt = DateTime.Now;
+                await _dbContext.SaveChangesAsync();
+                return todoItem;
+            }
+            return null;
+        }
+
+        public async Task<IEnumerable<TodoResponseViewModel?>> GetAllTodoAsync()
+        {
+            IEnumerable<TodoItem> todoItems = await _dbContext.TodoItems
+                            .Where(todo => !todo.IsDeleted && !todo.IsCompleted)
+                            .ToListAsync();
+
+            if (todoItems != null)
+            {
+                List<TodoResponseViewModel> response = new List<TodoResponseViewModel>();
+
+                foreach (var item in todoItems)
+                {
+                    var temp = item.ToViewModel<TodoItem, TodoResponseViewModel>();
+                    response.Add(temp);
+                }
+
+                return response;
+            }
+
+            return null;
+        }
+
+        public async Task<TodoResponseViewModel?> GetTodoByIdAsync(int id)
+        {
+            TodoItem todoItem = await _dbContext.TodoItems
+                            .Where(todo => todo.ID == id && !todo.IsDeleted)
                             .FirstOrDefaultAsync();
 
             if (todoItem == null)
             {
                 return null;
             }
-            var respond = todoItem.ToViewModel<TodoItem , TaskResponseViewModel>();
+            var response = todoItem.ToViewModel<TodoItem, TodoResponseViewModel>();
 
 
-            return respond;
+            return response;
         }
 
-        public async Task<IEnumerable<TaskResponseViewModel?>> GetAllCompleteTasksAsync()
+        public async Task<IEnumerable<TodoResponseViewModel?>> GetAllCompletedTodoAsync()
         {
             IEnumerable<TodoItem> todoItems = await _dbContext.TodoItems
-                .Where(t => t.IsCompleted == true && !t.IsDeleted).ToListAsync();
+                .Where(t => t.IsCompleted && !t.IsDeleted).ToListAsync();
 
 
             if (todoItems == null)
@@ -92,54 +92,60 @@ namespace TodoAPI.DAL.Repositories.Implementations
                 return null;
             }
 
-            List<TaskResponseViewModel> respond = new List<TaskResponseViewModel>();
+            List<TodoResponseViewModel> response = new List<TodoResponseViewModel>();
 
             foreach (var item in todoItems)
             {
-                var response = item.ToViewModel<TodoItem, TaskResponseViewModel>();
-                respond.Add(response);
+                var temp = item.ToViewModel<TodoItem, TodoResponseViewModel>();
+                response.Add(temp);
             }
 
-            return respond;
+            return response;
         }
 
-        public async Task<TaskResponseViewModel?> CompleteTaskAsync(int id)
+        public async Task<TodoResponseViewModel?> CompleteTodoByIdAsync(int id)
         {
             TodoItem item = await _dbContext.TodoItems
-                .Where (todo => todo.ID == id && !todo.IsCompleted && !todo.IsDeleted)
+                .Where(todo => todo.ID == id && !todo.IsDeleted && !todo.IsCompleted)
                 .SingleOrDefaultAsync();
             if (item == null)
             {
                 return null;
             }
+            if (item.IsCompleted)
+            {
+                throw new InvalidOperationException("already completed");
+            }
             item.CompletedAt = DateTime.Now;
             item.IsCompleted = true;
             await _dbContext.SaveChangesAsync();
 
-            var respond = item.ToViewModel<TodoItem, TaskResponseViewModel>();
-            
-            return respond;
-            
+            var response = item.ToViewModel<TodoItem, TodoResponseViewModel>();
+
+            return response;
+
         }
 
-        public async Task<TaskResponseViewModel?> UpdateTaskAsync(int id, UpdateRequestViewModel todoItem)
+        public async Task<TodoResponseViewModel> UpdateTodoAsync(int id, UpdateRequestViewModel todoItem)
         {
-            var body = await _dbContext.TodoItems
-                .Where(todo => todo.ID == id && !todo.IsCompleted && !todo.IsDeleted)
+            var item = await _dbContext.TodoItems
+                .Where(todo => todo.ID == id && !todo.IsDeleted)
                 .FirstOrDefaultAsync();
-            if (body == null)
-            {
-                return null;
-            }
-            body.Name = todoItem.Name;
-            body.Description = todoItem.Description;
-            body.UpdatedAt = DateTime.Now;
 
-            await _dbContext.SaveChangesAsync();
-            
-            var respond = todoItem.ToViewModel<UpdateRequestViewModel, TaskResponseViewModel>();
-            respond.ID = id;
-            return respond;
+            if (item != null)
+            {
+                item.Name = todoItem.Name;
+                item.Description = todoItem.Description;
+                item.UpdatedAt = DateTime.Now;
+
+                await _dbContext.SaveChangesAsync();
+
+                var response = todoItem.ToViewModel<UpdateRequestViewModel, TodoResponseViewModel>();
+                response.ID = id;
+                return response;
+            }
+
+            return null;
         }
     }
 }
