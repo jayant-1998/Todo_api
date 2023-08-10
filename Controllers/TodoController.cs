@@ -5,22 +5,20 @@ using TodoAPI.Services.Interface;
 
 namespace TodoAPI.Controllers
 {
-    
-    [Route("todo")]
     [ApiController]
     public class TodoController : ControllerBase
     {
         private readonly ITodoService _service;
 
-        public TodoController(ITodoService service)
+        public TodoController(IServiceProvider service)
         {
-            _service = service;
+            _service = service.GetService<ITodoService>();  
         }
 
         // GET: show all todo
         [Route("get-task-items")]
         [HttpGet]
-        public async Task<ActionResult> GetTaskItems()
+        public async Task<IActionResult> GetTaskItems()
         {
             try
             {
@@ -118,13 +116,7 @@ namespace TodoAPI.Controllers
         {
             try
             {
-                var result = await _service.UpdateTaskAsync(id, todoItem); 
-                
-                if (result == null)
-                {
-                    throw new Exception("id is not found in database or it already deleted");
-                }
-
+                TaskResponseViewModel result = await _service.UpdateTaskAsync(id, todoItem); 
                 var response = new ApiResponseViewModel
                 {
                     Timestamp = DateTime.Now,
@@ -188,12 +180,6 @@ namespace TodoAPI.Controllers
             try
             {
                 var result = await _service.CompletedTaskAsync(id);
-
-                if (result == null)
-                {
-                    throw new Exception("id is not found in database");
-                }
-
                 var response = new ApiResponseViewModel
                 {
                     Timestamp = DateTime.Now,
