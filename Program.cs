@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TodoAPI.DAL.DBContexts;
-using TodoAPI.DAL.Repositories.Implementaations;
+using TodoAPI.DAL.Repositories.Implementations;
 using TodoAPI.DAL.Repositories.Interfaces;
 using TodoAPI.Services.Implementation;
 using TodoAPI.Services.Interface;

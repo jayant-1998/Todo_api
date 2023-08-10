@@ -17,7 +17,7 @@ namespace TodoAPI.Controllers
             _service = service;
         }
 
-        // GET: show all todos
+        // GET: show all todo
         [Route("get-task-items")]
         [HttpGet]
         public async Task<ActionResult> GetTaskItems()
