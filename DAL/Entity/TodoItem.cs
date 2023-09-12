@@ -1,5 +1,4 @@
-﻿
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TodoAPI.DAL.Entity
@@ -14,7 +13,7 @@ namespace TodoAPI.DAL.Entity
         public bool IsCompleted { get; set; }
         public bool IsDeleted { get; set; }
         public DateTime? CompletedAt { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime? UpdatedAt { get; set; }
         public DateTime? DeletedAt { get; set; }
     }
