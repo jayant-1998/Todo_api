@@ -38,7 +38,7 @@ namespace TodoAPI.Services.Implementation
             }
             return response;
         }
-        public async Task<IEnumerable<TodoResponseViewModel>> GetAllCompletedTodoAsync()
+        public async Task<IEnumerable<GetAllTodoResponseViewModel>> GetAllCompletedTodoAsync()
         {
             return await _repository.GetAllCompletedTodoAsync();
         }
@@ -54,7 +54,7 @@ namespace TodoAPI.Services.Implementation
             return response;
         }
 
-        public async Task<IEnumerable<TodoResponseViewModel>> GetAllTodoAsync()
+        public async Task<IEnumerable<GetAllTodoResponseViewModel>> GetAllTodoAsync()
         {
             var response = await _repository.GetAllTodoAsync();
             if (response == null)

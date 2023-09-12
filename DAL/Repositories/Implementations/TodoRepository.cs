@@ -19,12 +19,11 @@ namespace TodoAPI.DAL.Repositories.Implementations
 
         public async Task<TodoItem> InsertTodoAsync(InsertRequestViewModel todoItem)
         {
-            var todoItemEntity = todoItem.ToViewModel<InsertRequestViewModel, TodoItem>();
+            var todoEntity = todoItem.ToViewModel<InsertRequestViewModel, TodoItem>();
 
-            await _dbContext.AddAsync(todoItemEntity);
+            await _dbContext.AddAsync(todoEntity);
             await _dbContext.SaveChangesAsync();
-
-            return todoItemEntity;
+            return todoEntity;
         }
 
         public async Task<TodoItem> DeleteTodoAsync(int id)
@@ -43,7 +42,7 @@ namespace TodoAPI.DAL.Repositories.Implementations
             return null;
         }
 
-        public async Task<IEnumerable<TodoResponseViewModel?>> GetAllTodoAsync()
+        public async Task<IEnumerable<GetAllTodoResponseViewModel?>> GetAllTodoAsync()
         {
             IEnumerable<TodoItem> todoItems = await _dbContext.TodoItems
                             .Where(todo => !todo.IsDeleted && !todo.IsCompleted)
@@ -51,11 +50,11 @@ namespace TodoAPI.DAL.Repositories.Implementations
 
             if (todoItems != null)
             {
-                List<TodoResponseViewModel> response = new List<TodoResponseViewModel>();
+                List<GetAllTodoResponseViewModel> response = new List<GetAllTodoResponseViewModel>();
 
                 foreach (var item in todoItems)
                 {
-                    var temp = item.ToViewModel<TodoItem, TodoResponseViewModel>();
+                    var temp = item.ToViewModel<TodoItem, GetAllTodoResponseViewModel>();
                     response.Add(temp);
                 }
 
@@ -81,7 +80,7 @@ namespace TodoAPI.DAL.Repositories.Implementations
             return response;
         }
 
-        public async Task<IEnumerable<TodoResponseViewModel?>> GetAllCompletedTodoAsync()
+        public async Task<IEnumerable<GetAllTodoResponseViewModel?>> GetAllCompletedTodoAsync()
         {
             IEnumerable<TodoItem> todoItems = await _dbContext.TodoItems
                 .Where(t => t.IsCompleted && !t.IsDeleted).ToListAsync();
@@ -92,11 +91,11 @@ namespace TodoAPI.DAL.Repositories.Implementations
                 return null;
             }
 
-            List<TodoResponseViewModel> response = new List<TodoResponseViewModel>();
+            List<GetAllTodoResponseViewModel> response = new List<GetAllTodoResponseViewModel>();
 
             foreach (var item in todoItems)
             {
-                var temp = item.ToViewModel<TodoItem, TodoResponseViewModel>();
+                var temp = item.ToViewModel<TodoItem, GetAllTodoResponseViewModel>();
                 response.Add(temp);
             }
 

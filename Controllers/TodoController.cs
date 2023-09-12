@@ -6,6 +6,7 @@ using TodoAPI.Services.Interface;
 namespace TodoAPI.Controllers
 {
     [ApiController]
+    [Route("api/[controller]")]
     public class TodoController : ControllerBase
     {
         private readonly ITodoService _service;
@@ -18,11 +19,11 @@ namespace TodoAPI.Controllers
         // GET: show all todo
         [Route("get-all-todo")]
         [HttpGet]
-        public async Task<IActionResult> GetTodoItems()
+        public async Task<IActionResult> GetAllTodo()
         {
             try
             {
-                IEnumerable<TodoResponseViewModel> result = await _service.GetAllTodoAsync();
+                IEnumerable<GetAllTodoResponseViewModel> result = await _service.GetAllTodoAsync();
                
                 var response = new ApiResponseViewModel
                 {
@@ -46,7 +47,7 @@ namespace TodoAPI.Controllers
 
         // GET: show todo by id
         [HttpGet("get-todo/{id}")]
-        public async Task<ActionResult> GetTodoById(int id)
+        public async Task<IActionResult> GetTodoById(int id)
         {
             try
             {
@@ -75,7 +76,7 @@ namespace TodoAPI.Controllers
         // POST: insert data
         [Route("insert-todo")]
         [HttpPost]
-        public async Task<ActionResult> InsertTodo(InsertRequestViewModel todoItem)
+        public async Task<IActionResult> InsertTodo(InsertRequestViewModel todoItem)
         {
             try
             {
@@ -193,7 +194,7 @@ namespace TodoAPI.Controllers
         }
 
         [HttpGet("get-completed-todo")]
-        public async Task<ActionResult> GetAllCompletedTodo()
+        public async Task<IActionResult> GetAllCompletedTodo()
         {
             try
             {
