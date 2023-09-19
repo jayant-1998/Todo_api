@@ -3,18 +3,24 @@ using TodoAPI.Models.RequestViewModels;
 using TodoAPI.Models.ResponseViewModels;
 using TodoAPI.Services.Interface;
 
-namespace TodoAPI.Controllers
+namespace TodoAPI.Controllers.V1
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
+
     public class TodoController : ControllerBase
     {
         private readonly ITodoService _service;
+        //private readonly ITodoService todoService;
 
         public TodoController(IServiceProvider service)
         {
-            _service = service.GetService<ITodoService>();  
+            _service = service.GetRequiredService<ITodoService>();
+            //todoService = (ITodoService)service.GetRequiredService(typeof(Todo)); //this same interface for multiple services
         }
+
+
 
         // GET: show all todo
         [Route("get-all-todo")]
@@ -24,7 +30,9 @@ namespace TodoAPI.Controllers
             try
             {
                 IEnumerable<GetAllTodoResponseViewModel> result = await _service.GetAllTodoAsync();
-               
+                //IEnumerable<GetAllTodoResponseViewModel> result1 = await todoService.GetAllTodoAsync();
+
+
                 var response = new ApiResponseViewModel
                 {
                     Code = 200,
@@ -52,7 +60,7 @@ namespace TodoAPI.Controllers
             try
             {
                 TodoResponseViewModel result = await _service.GetTodoByIdAsync(id);
-                
+
                 var response = new ApiResponseViewModel
                 {
                     Code = 200,
@@ -111,7 +119,7 @@ namespace TodoAPI.Controllers
         {
             try
             {
-                TodoResponseViewModel result = await _service.UpdateTodoAsync(id, todoItem); 
+                TodoResponseViewModel result = await _service.UpdateTodoAsync(id, todoItem);
                 var response = new ApiResponseViewModel
                 {
                     Code = 200,
@@ -135,7 +143,7 @@ namespace TodoAPI.Controllers
         }
 
         // DELETE: delete by id
-        
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTodo(int id)
         {

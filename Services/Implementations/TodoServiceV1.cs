@@ -6,11 +6,11 @@ using TodoAPI.Services.Interface;
 
 namespace TodoAPI.Services.Implementation
 {
-    public class TodoService : ITodoService
+    public class TodoServiceV1 : ITodoService
     {
         private readonly ITodoRepository _repository;
 
-        public TodoService(IServiceProvider serviceProvider)
+        public TodoServiceV1(IServiceProvider serviceProvider)
         {
             _repository = serviceProvider.GetRequiredService<ITodoRepository>();
         }
